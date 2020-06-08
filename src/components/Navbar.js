@@ -38,6 +38,9 @@ export default function ButtonAppBar() {
           <Typography variant="h6" className={classes.title}>
             DexNet
           </Typography>
+          <Typography variant="h6">
+            By Srujan Deshpande
+          </Typography>
         </Toolbar>
       </AppBar>
     </div>

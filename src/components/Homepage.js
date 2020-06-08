@@ -3,6 +3,7 @@ import { compose, withProps } from "recompose"
 import { withScriptjs, withGoogleMap, GoogleMap, Marker } from "react-google-maps"
 import Map from './Map'
 import Fireapp from '../config/firebaseConfig'
+import {NavLink} from 'react-router-dom'
 
 const storage = Fireapp.storage();
 
@@ -28,10 +29,30 @@ const MyMapComponent = compose(
 class MyFancyComponent extends React.PureComponent {
   state = {
     isMarkerShown: false,
+    locs:[]
   }
 
   componentDidMount() {
     this.delayedShowMarker()
+
+  }
+
+  getMarker = () =>{
+  let citiesRef = Fireapp.firestore().collection('test_collection');
+let query = citiesRef.get()
+  .then(snapshot => {
+    if (snapshot.empty) {
+      console.log('No matching documents.');
+      return;
+    }
+
+    snapshot.forEach(doc => {
+      console.log(doc.id, '=>', doc.data());
+    });
+  })
+  .catch(err => {
+    console.log('Error getting documents', err);
+  });
 
   }
 
@@ -47,13 +68,23 @@ class MyFancyComponent extends React.PureComponent {
   }
 
   render() {
+    let citiesRef = Fireapp.firestore().collection('test_collection');
+    let query = citiesRef.get()
+    .then(snapshot => {
+      snapshot.forEach(doc => {
+        this.state.locs.push(<div>doc.data().latitude</div>);
+      });
+    });
+    {this.getMarker()}
     return (
       <div>
-      <Map/>
+      <NavLink to='/profile'>Create Profile</NavLink>
       <MyMapComponent
         isMarkerShown={this.state.isMarkerShown}
         onMarkerClick={this.handleMarkerClick}
       />
+      {this.state.locs}
+      {console.log(this.state.locs, "sd")}
       </div>
     )
   }
