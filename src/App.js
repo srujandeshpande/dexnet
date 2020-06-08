@@ -14,8 +14,8 @@ function App() {
     <div className="App">
       <Navbar/>
       <Switch>
+      <Route path='/profile' component = {Profile}/>
         <Route path='/' component = {Homepage}/>
-
       </Switch>
     </div>
     </BrowserRouter>
