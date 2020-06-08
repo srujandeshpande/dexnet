@@ -2,7 +2,6 @@ import React, { Component } from 'react'
 import Fireapp from '../config/firebaseConfig'
 
 const storage = Fireapp.storage();
-const email = Fireapp.auth().currentUser
 
 class BasicInfoForm extends Component {
     state = {
@@ -14,6 +13,8 @@ class BasicInfoForm extends Component {
         college : '',
         major : '',
         year : '',
+        latitude: '',
+        longitude: '',
     }
 
     handleChange = (e) =>{
@@ -22,56 +23,36 @@ class BasicInfoForm extends Component {
         })
     }
 
+    handleLLChange = (l1,l2) =>{
+      console.log(l1,l2,this.state);
+        this.setState({
+            latitude:l1,
+            longitude:l2,
+        })
+        const db = Fireapp.firestore()
+        const ref = db.collection('test_collection');
+        console.log(this.state);
+        ref.add(this.state);
+    }
+
+    showPosition = (position)=> {
+      {this.handleLLChange(position.coords.latitude, position.coords.longitude)};
+      console.log("Latitude: " + position.coords.latitude +
+      "<br>Longitude: " + position.coords.longitude)
+    }
+
     handleSubmit = (e) =>{
         e.preventDefault();
         console.log(this.state)
         //firebase save
-        if(this.props.edit == true && this.state.image == null)
-        {
-            this.setState({
-                profilePicture:this.props.profile['bio']['profilePicture']
-            })
-        }
-        console.log("IMAGE UPLOADED!",this.state.profilePicture)
-        const db = Fireapp.firestore()
-        const ref = db.collection('profiles');
-        const bio = {
-            'profilePicture' : this.state.profilePicture,
-            'firstName' : this.state.firstName,
-            'lastName' : this.state.lastName,
-            'header' : this.state.header,
-            'designation' : this.state.designation,
-            'links' : this.state.links,
-        }
-        if(this.props.id == ''){
-        ref.add({
-            email:email,
-            bio:bio
-        }).then(
-            (docRef) => {
-                this.props.next(docRef.id)
-            }
-        )
-        .catch((error)=>{
-            console.log("Some error occured")
-        })
-        }
-        else{
-            ref.doc(this.props.id).update({
-                email:email,
-                bio:bio
-            })
-            .then(
-                this.props.next(this.props.id)
-            )
-            .catch((error)=>{
-                console.log(
-                    'Some error occured'
-                )
-            })
-        }
 
 
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(this.showPosition);
+        }
+        else {
+          alert("Please enable location")
+        }
 
     }
 
@@ -112,23 +93,23 @@ class BasicInfoForm extends Component {
                     </div>
                     <div className="input-field">
                         <label htmlFor="lastName">Email Address</label>
-                        <input type="text" id = "lastName" value = {this.state.lastName} onChange={this.handleChange} />
+                        <input type="text" id = "email" value = {this.state.email} onChange={this.handleChange} />
                     </div>
                     <div className="input-field">
                         <label htmlFor="header">1 Sentence about you</label>
-                        <input type="text" id = "header" value = {this.state.header}  onChange={this.handleChange} />
+                        <input type="text" id = "sentence" value = {this.state.sentence}  onChange={this.handleChange} />
                     </div>
                     <div className="input-field">
                         <label htmlFor="designation">College/University</label>
-                        <input type="text" id = "designation" value = {this.state.designation} onChange={this.handleChange} />
+                        <input type="text" id = "college" value = {this.state.college} onChange={this.handleChange} />
                     </div>
                     <div className="input-field">
                         <label htmlFor="designation">Major</label>
-                        <input type="text" id = "designation" value = {this.state.designation} onChange={this.handleChange} />
+                        <input type="text" id = "major" value = {this.state.major} onChange={this.handleChange} />
                     </div>
                     <div className="input-field">
                         <label htmlFor="designation">Graduation Year</label>
-                        <input type="year" id = "designation" value = {this.state.designation} onChange={this.handleChange} />
+                        <input type="month" id = "year" value = {this.state.year} onChange={this.handleChange} />
                     </div>
                     <div className="input-field">
                         <button type="button" className="btn pink lighten-1 z-depth-0" onClick={this.handleSubmit}>
@@ -140,9 +121,5 @@ class BasicInfoForm extends Component {
         )
     }
 }
-
-
-
-
 
 export default BasicInfoForm
